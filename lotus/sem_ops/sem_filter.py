@@ -111,7 +111,7 @@ def sem_filter(
 
     try:
         lm_output: LMOutput = model(
-            inputs[0], show_progress_bar=show_progress_bar, progress_bar_desc=progress_bar_desc, **kwargs
+            inputs, show_progress_bar=show_progress_bar, progress_bar_desc=progress_bar_desc, **kwargs
         )
         pass
     except Exception as e:
@@ -120,9 +120,8 @@ def sem_filter(
         #     one_output = model.invoke(one_input)
         #     all_outputs.append(one_output.content)
         all_outputs = [model.invoke(x).content for x in inputs]
-
         lm_output = LMOutput(outputs=all_outputs)
-        pass
+        raise
         # prompts = list()
         # for elem in inputs:
         #     s = "<|start_of_role|>system<|end_of_role|>\n"

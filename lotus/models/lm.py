@@ -90,6 +90,20 @@ class LM:
         self.max_ctx_len = max_ctx_len
         self.max_tokens = max_tokens
         self.rate_limit = rate_limit
+
+        self.rits_lm = None
+        if 'rits_url' in kwargs:
+            import os
+            from langchain_openai import ChatOpenAI
+            self.rits_lm = ChatOpenAI(
+                model=self.model,
+                temperature=0,
+                max_retries=2,
+                api_key='/',
+                base_url=kwargs['rits_url'],
+                default_headers={'RITS_API_KEY': os.environ["RITS_API_KEY"]},
+            )
+
         if rate_limit is not None:
             self._rate_limit_delay: float = 60 / rate_limit
             if max_batch_size is not None:
@@ -114,6 +128,11 @@ class LM:
         progress_bar_desc: str = "Processing uncached messages",
         **kwargs: dict[str, Any],
     ) -> LMOutput:
+
+        if self.rits_lm:
+            all_outputs = [self.rits_lm.invoke(x).content for x in messages]
+            return LMOutput(outputs=all_outputs)
+
         all_kwargs = {**self.kwargs, **kwargs}
 
         # Set top_logprobs if logprobs requested
