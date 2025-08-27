@@ -138,7 +138,11 @@ def sem_agg(
             template = leaf_instr_template
         else:
             template = node_instr_template
-        template_tokens = model.count_tokens(template)
+        try:
+            template_tokens = model.count_tokens(template)
+        except:
+            template_tokens = 0
+            
         context_tokens = 0
         doc_ctr = 1  # num docs in current prompt
 

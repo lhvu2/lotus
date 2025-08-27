@@ -97,7 +97,11 @@ def get_cot_postprocessor(model: lotus.models.LM, for_extract: bool = False) -> 
     Returns:
         Callable: The appropriate postprocessor function.
     """
-    model_name = model.get_model_name()
+    try:
+        model_name = model.get_model_name()
+    except:
+        model_name = model.model_name
+
     for processor_key in COT_POSTPROCESSORS:
         if model_name.startswith(processor_key):
             base_processor = COT_POSTPROCESSORS[processor_key]

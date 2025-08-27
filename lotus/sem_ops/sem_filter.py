@@ -109,9 +109,35 @@ def sem_filter(
         estimated_total_cost = sum(model.count_tokens(input) for input in inputs)
         show_safe_mode(estimated_total_cost, estimated_total_calls)
 
-    lm_output: LMOutput = model(
-        inputs, show_progress_bar=show_progress_bar, progress_bar_desc=progress_bar_desc, **kwargs
-    )
+    try:
+        lm_output: LMOutput = model(
+            inputs[0], show_progress_bar=show_progress_bar, progress_bar_desc=progress_bar_desc, **kwargs
+        )
+        pass
+    except Exception as e:
+        # all_outputs = list()
+        # for one_input in inputs:
+        #     one_output = model.invoke(one_input)
+        #     all_outputs.append(one_output.content)
+        all_outputs = [model.invoke(x).content for x in inputs]
+
+        lm_output = LMOutput(outputs=all_outputs)
+        pass
+        # prompts = list()
+        # for elem in inputs:
+        #     s = "<|start_of_role|>system<|end_of_role|>\n"
+        #     s = s + elem[0]['content']
+        #     s = s + "<|end_of_text|>\n"
+        #     s = s + "<|start_of_role|>user<|end_of_role|>\n"
+        #     s = s + elem[1]['content']
+        #     prompts.append(s)
+        #     pass
+
+        # llm_results = model.generate(prompts)
+        # lm_output = LMOutput([])
+        # for e in llm_results.generations:
+        #     lm_output.outputs.append(e[0].text)
+        #     pass
 
     postprocess_output = filter_postprocess(lm_output.outputs, model, default)
     lotus.logger.debug(f"outputs: {postprocess_output.outputs}")
